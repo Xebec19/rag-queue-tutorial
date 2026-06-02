@@ -6,21 +6,20 @@ from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
 
+embeddings = HuggingFaceEmbeddings(
+    model_name="all-MiniLM-L6-v2",
+    model_kwargs={"device": "cpu"},  # explicitly use CPU
+    encode_kwargs={"normalize_embeddings": True},  # recommended for cosine similarity
+)
+
+vectordb = QdrantVectorStore.from_existing_collection(
+    url="http://localhost:6333",
+    embedding=embeddings,
+    collection_name="learning_rag",
+)
+
 
 def process_query(query: str):
-    embeddings = HuggingFaceEmbeddings(
-        model_name="all-MiniLM-L6-v2",
-        model_kwargs={"device": "cpu"},  # explicitly use CPU
-        encode_kwargs={
-            "normalize_embeddings": True
-        },  # recommended for cosine similarity
-    )
-
-    vectordb = QdrantVectorStore.from_existing_collection(
-        url="http://localhost:6333",
-        embedding=embeddings,
-        collection_name="learning_rag",
-    )
 
     search_results = vectordb.similarity_search(query=query, k=5)
 
@@ -57,3 +56,5 @@ def process_query(query: str):
     chain = prompt | llm
     response = chain.invoke({"input": query, "context": context})
     print(response.content)
+
+    return response.content

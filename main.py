@@ -1,5 +1,9 @@
+from .server import app
+import uvicorn
+
+
 def main():
-    print("Hello from rag-queue!")
+    uvicorn.run(app, port=8000, host="0.0.0.0")
 
 
 if __name__ == "__main__":
